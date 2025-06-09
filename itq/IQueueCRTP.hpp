@@ -26,7 +26,7 @@ namespace itq
 {
 
 template <typename Derived, typename Item, size_t Capacity>
-  requires is_power_of_two<Capacity>
+  requires is_power_of_two<Capacity> && std::is_trivially_constructible_v<Item> && std::is_trivially_destructible_v<Item>
 class IQueueCRTP
 {
   public:
@@ -48,11 +48,9 @@ class IQueueCRTP
     }
 
   protected:
-    static constexpr size_t wrap_mask = Capacity - 1;
+    static constexpr size_t _wrap_mask = Capacity - 1;
 
-    alignas(CACHELINE_SIZE) std::atomic<size_t> write_idx;
-    alignas(CACHELINE_SIZE) std::atomic<size_t> read_idx;
-    alignas(CACHELINE_SIZE) std::array<Item, Capacity> buffer;
+    alignas(CACHELINE_SIZE) std::array<Item, Capacity> _buffer{};
 
   private:
     inline Derived *derived(void) noexcept { return static_cast<Derived*>(this); }
