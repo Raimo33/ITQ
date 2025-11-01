@@ -29,14 +29,14 @@ class SPSCQueue : public IQueueCRTP<SPSCQueue<Item, Capacity>, Item, Capacity>
     template <typename ForwardItem>
     void push_impl(ForwardItem &&item) noexcept
     {
-      _buffer[_local_write_idx & wrap_mask] = std::forward<ForwardItem>(item);
+      _buffer[_local_write_idx & _wrap_mask] = std::forward<ForwardItem>(item);
       _write_idx.store(++_local_write_idx, std::memory_order_release);
     }
 
     template <typename... Args>
     void emplace_impl(Args &&...args) noexcept
     {
-      new (&_buffer[_local_write_idx & wrap_mask]) Item(std::forward<Args>(args)...);
+      new (&_buffer[_local_write_idx & _wrap_mask]) Item(std::forward<Args>(args)...);
       _write_idx.store(++_local_write_idx, std::memory_order_release);
     }
 
